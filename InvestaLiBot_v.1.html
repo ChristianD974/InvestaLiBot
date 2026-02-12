@@ -1,0 +1,2586 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invest'A Li BOT - Simulateur d'Investissement IA</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-light: #38bdf8;
+            --primary-dark: #0284c7;
+            --primary-soft: #e0f2fe;
+            --secondary: #6366f1;
+            --accent: #f59e0b;
+            --success: #22c55e;
+            --warning: #f97316;
+            
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --bg-card: #ffffff;
+            
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            
+            --border: #e2e8f0;
+            --border-focus: #0ea5e9;
+            
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08);
+            --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.1);
+            
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            
+            --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Background Image */
+        .bg-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background: url('https://images.unsplash.com/photo-1611974765270-ca1258634369?w=1920&q=80') center/cover no-repeat;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background: linear-gradient(135deg, rgba(255,255,255,0.97) 0%, rgba(248,250,252,0.95) 100%);
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255,255,255,0.2);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo-text {
+            color: white;
+        }
+
+        .logo-text h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .logo-text span {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .lang-btn, .share-btn {
+            padding: 10px 16px;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: var(--radius-md);
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+        }
+
+        .lang-btn:hover, .share-btn:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+        .lang-btn.active {
+            background: white;
+            color: var(--primary);
+        }
+
+        .hero {
+            text-align: center;
+            padding: 24px 0;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 100px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero h2 {
+            color: white;
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .hero p {
+            color: rgba(255,255,255,0.85);
+            font-size: 1.1rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        /* Opportunities Section */
+        .opportunities-section {
+            margin-bottom: 48px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .section-header h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .section-header p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .opportunities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .opportunity-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .opportunity-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transform: scaleX(0);
+            transition: transform var(--transition);
+        }
+
+        .opportunity-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--primary-light);
+        }
+
+        .opportunity-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .opportunity-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-soft), #dbeafe);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .opportunity-card h4 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .opportunity-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .opportunity-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .opportunity-badge {
+            background: linear-gradient(135deg, var(--accent), #fbbf24);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .opportunity-link {
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* App Section */
+        .app-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 24px;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .nav-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-tab {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: var(--transition);
+        }
+
+        .nav-tab:hover {
+            border-color: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .nav-tab.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .nav-tab .tab-icon {
+            width: 24px;
+            height: 24px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .nav-tab.active .tab-icon {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .nav-tab .close-btn {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 14px;
+            opacity: 0.6;
+            transition: var(--transition);
+            margin-left: 4px;
+        }
+
+        .nav-tab .close-btn:hover {
+            opacity: 1;
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+        }
+
+        .add-project-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: transparent;
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-md);
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: var(--transition);
+        }
+
+        .add-project-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--primary-soft);
+        }
+
+        .compare-tab {
+            margin-left: auto;
+            background: linear-gradient(135deg, var(--secondary), #8b5cf6) !important;
+            border-color: transparent !important;
+            color: white !important;
+        }
+
+        .compare-tab:hover {
+            opacity: 0.9;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Project View */
+        .project-view {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 32px;
+            padding: 32px;
+        }
+
+        @media (max-width: 900px) {
+            .project-view {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Inputs Panel */
+        .inputs-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .panel-header h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .panel-badge {
+            background: var(--primary-soft);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .input-group input[type="text"],
+        .input-group input[type="number"] {
+            padding: 14px 16px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 15px;
+            color: var(--text-primary);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .input-group input[type="text"]:focus,
+        .input-group input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+        }
+
+        /* Rate Type Selector */
+        .rate-type-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .rate-type-btn {
+            flex: 1;
+            padding: 8px 12px;
+            background: var(--bg-tertiary);
+            border: 2px solid transparent;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .rate-type-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .rate-input-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .rate-input-wrapper input[type="number"] {
+            flex: 1;
+        }
+
+        .rate-input-wrapper input[type="range"] {
+            flex: 2;
+            -webkit-appearance: none;
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .rate-input-wrapper input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(14, 165, 233, 0.4);
+            border: 3px solid white;
+            transition: var(--transition);
+        }
+
+        .rate-input-wrapper input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        .value-display {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Toggle */
+        .toggle-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: var(--primary-soft);
+            border: 2px solid transparent;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+        }
+
+        .toggle-card:hover {
+            border-color: var(--primary-light);
+        }
+
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .ai-chip {
+            background: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 100px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: #cbd5e1;
+            border-radius: 28px;
+            transition: var(--transition);
+        }
+
+        .slider::before {
+            content: '';
+            position: absolute;
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: var(--transition);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        input:checked + .slider {
+            background: var(--primary);
+        }
+
+        input:checked + .slider::before {
+            transform: translateX(24px);
+        }
+
+        /* Export Button */
+        .btn-primary {
+            width: 100%;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border: none;
+            border-radius: var(--radius-md);
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 14px rgba(14, 165, 233, 0.35);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.45);
+        }
+
+        /* Results Panel */
+        .results-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        @media (max-width: 500px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .result-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            transition: var(--transition);
+        }
+
+        .result-card:hover {
+            border-color: var(--primary-light);
+            box-shadow: var(--shadow-md);
+        }
+
+        .result-card.highlight {
+            grid-column: span 2;
+            background: linear-gradient(135deg, var(--primary-soft), #dbeafe);
+            border-color: var(--primary);
+        }
+
+        @media (max-width: 500px) {
+            .result-card.highlight {
+                grid-column: span 1;
+            }
+        }
+
+        .result-card h5 {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .result-card .value {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .result-card.highlight .value {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Chart */
+        .chart-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            height: 300px;
+        }
+
+        /* Comparison View */
+        .comparison-view {
+            padding: 32px;
+        }
+
+        .comparison-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .comparison-header h4 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .comparison-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-secondary {
+            padding: 12px 20px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* AI Analysis Section */
+        .ai-section {
+            background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+            border: 1px solid #c4b5fd;
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            margin-bottom: 32px;
+        }
+
+        .ai-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .ai-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--secondary), #8b5cf6);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .ai-header h5 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .ai-header span {
+            font-size: 0.8rem;
+            color: #7c3aed;
+            font-weight: 500;
+        }
+
+        .ai-recommendation {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .ai-recommendation h6 {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--success);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ai-recommendation p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .ai-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+        }
+
+        .ai-stat {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: 16px;
+            text-align: center;
+        }
+
+        .ai-stat h6 {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .ai-stat .stat-value {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--secondary);
+        }
+
+        /* Comparison Chart */
+        .comparison-chart-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            height: 380px;
+            margin-bottom: 32px;
+        }
+
+        /* Comparison Table */
+        .comparison-table-wrapper {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .comparison-table th {
+            background: white;
+            color: var(--primary);
+            padding: 16px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .comparison-table td {
+            padding: 16px;
+            font-size: 14px;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table tr:hover td {
+            background: var(--primary-soft);
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table tr.total-row {
+            background: linear-gradient(135deg, var(--primary-soft), #dbeafe);
+            font-weight: 700;
+        }
+
+        .comparison-table tr.total-row td {
+            color: var(--primary-dark);
+            border-top: 2px solid var(--primary);
+        }
+
+        .winner-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--success);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            background: white;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            border-radius: var(--radius-md);
+            padding: 16px 24px;
+            color: var(--text-primary);
+            font-weight: 500;
+            box-shadow: var(--shadow-xl);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            display: none;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 20px 16px;
+            }
+
+            .header-top {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .container {
+                padding: 24px 16px;
+            }
+
+            .nav-tabs {
+                padding: 12px 16px;
+            }
+
+            .project-view,
+            .comparison-view {
+                padding: 20px;
+            }
+
+            .opportunities-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .comparison-actions {
+                width: 100%;
+            }
+
+            .comparison-actions .btn-secondary {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .comparison-table-wrapper {
+                overflow-x: auto;
+            }
+
+            .comparison-table {
+                min-width: 700px;
+            }
+
+            .rate-input-wrapper {
+                flex-direction: column;
+            }
+
+            .rate-input-wrapper input[type="range"] {
+                width: 100%;
+            }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 48px;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state h5 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background -->
+    <div class="bg-overlay"></div>
+    <div class="bg-gradient"></div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-top">
+                <div class="logo">
+                    <div class="logo-icon">🤖</div>
+                    <div class="logo-text">
+                        <h1 data-i18n="appName">Invest'A Li BOT</h1>
+                        <span data-i18n="appSubtitle">Simulateur IA</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="lang-btn active" onclick="changeLanguage('fr')" data-lang="fr">🇫🇷 FR</button>
+                    <button class="lang-btn" onclick="changeLanguage('en')" data-lang="en">🇬🇧 EN</button>
+                    <button class="share-btn" onclick="sharePage()">🔗 <span data-i18n="share">Partager</span></button>
+                </div>
+            </div>
+            <div class="hero">
+                <div class="hero-badge">
+                    <span>✨</span> <span data-i18n="heroBadge">Propulsé par l'Intelligence Artificielle</span>
+                </div>
+                <h2 data-i18n="heroTitle">Optimisez vos investissements</h2>
+                <p data-i18n="heroSubtitle">Simulez, comparez et laissez notre IA vous guider vers les meilleures décisions</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Opportunities Section -->
+        <section class="opportunities-section">
+            <div class="section-header">
+                <h3 data-i18n="opportunitiesTitle">🎯 Opportunités d'Investissement</h3>
+                <p data-i18n="opportunitiesSubtitle">Découvrez nos opportunités sélectionnées par notre IA</p>
+            </div>
+            <div class="opportunities-grid" id="opportunitiesGrid"></div>
+        </section>
+
+        <!-- App Section -->
+        <div class="app-section">
+            <!-- Navigation Tabs -->
+            <nav class="nav-tabs" id="navTabs"></nav>
+            
+            <!-- Projects Content -->
+            <div id="projectsContent"></div>
+            
+            <!-- Comparison Content -->
+            <div class="tab-content" id="comparisonContent">
+                <div class="comparison-view">
+                    <div class="comparison-header">
+                        <h4 data-i18n="comparisonTitle">📊 Analyse Comparative IA</h4>
+                        <div class="comparison-actions">
+                            <button class="btn-secondary" onclick="exportComparisonPDF()">
+                                <span>📥</span> <span data-i18n="exportPDF">Exporter PDF</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- AI Analysis -->
+                    <div class="ai-section" id="aiAnalysisSection">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🤖</div>
+                            <h5 data-i18n="aiEmptyTitle">Créez des projets pour l'analyse IA</h5>
+                            <p data-i18n="aiEmptyText">Ajoutez au moins 2 projets pour comparer et obtenir des recommandations</p>
+                        </div>
+                    </div>
+
+                    <!-- Comparison Chart -->
+                    <div class="comparison-chart-container">
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
+
+                    <!-- Comparison Table -->
+                    <div class="comparison-table-wrapper">
+                        <table class="comparison-table" id="comparisonTable">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="colProject">Projet</th>
+                                    <th data-i18n="colInitial">Capital Initial</th>
+                                    <th data-i18n="colRate">Taux</th>
+                                    <th data-i18n="colMonthly">Apport Mensuel</th>
+                                    <th data-i18n="colDuration">Durée</th>
+                                    <th data-i18n="colTotalInvested">Total Investi</th>
+                                    <th data-i18n="colFinal">Capital Final</th>
+                                    <th data-i18n="colGains">Gains</th>
+                                    <th data-i18n="colReturn">Rendement</th>
+                                </tr>
+                            </thead>
+                            <tbody id="comparisonTableBody">
+                                <tr>
+                                    <td colspan="9" class="empty-state">
+                                        <div class="empty-state-icon">📊</div>
+                                        <h5 data-i18n="tableEmptyTitle">Aucun projet à comparer</h5>
+                                        <p data-i18n="tableEmptyText">Créez des projets pour voir la comparaison</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Translations
+        const translations = {
+            fr: {
+                appName: "Invest'A Li BOT",
+                appSubtitle: "Simulateur IA",
+                share: "Partager",
+                heroBadge: "Propulsé par l'Intelligence Artificielle",
+                heroTitle: "Optimisez vos investissements",
+                heroSubtitle: "Simulez, comparez et laissez notre IA vous guider vers les meilleures décisions",
+                opportunitiesTitle: "🎯 Opportunités d'Investissement",
+                opportunitiesSubtitle: "Découvrez nos opportunités sélectionnées par notre IA",
+                comparisonTitle: "📊 Analyse Comparative IA",
+                exportPDF: "Exporter PDF",
+                aiEmptyTitle: "Créez des projets pour l'analyse IA",
+                aiEmptyText: "Ajoutez au moins 2 projets pour comparer et obtenir des recommandations",
+                tableEmptyTitle: "Aucun projet à comparer",
+                tableEmptyText: "Créez des projets pour voir la comparaison",
+                colProject: "Projet",
+                colInitial: "Capital Initial",
+                colRate: "Taux",
+                colMonthly: "Apport Mensuel",
+                colDuration: "Durée",
+                colTotalInvested: "Total Investi",
+                colFinal: "Capital Final",
+                colGains: "Gains",
+                colReturn: "Rendement",
+                newProject: "Nouveau Projet",
+                compareAI: "Comparaison IA",
+                settings: "Paramètres",
+                project: "PROJET",
+                projectName: "Nom du projet",
+                startingCapital: "Capital de départ",
+                rateType: "Type de taux",
+                daily: "Journalier",
+                monthly: "Mensuel",
+                rate: "Taux",
+                monthlyContribution: "Apport mensuel",
+                duration: "Durée (mois)",
+                compoundInterest: "Intérêts composés",
+                aiPowered: "IA",
+                exportProjectPDF: "Exporter en PDF",
+                finalCapital: "💎 Capital Final",
+                totalGains: "📈 Total des Gains",
+                totalContributions: "💰 Total des Apports",
+                totalReturn: "🎯 Rendement Total",
+                aiAnalysis: "Analyse Intelligente",
+                aiRecommendation: "Recommandation personnalisée par IA",
+                bestProject: "Meilleur projet",
+                withReturn: "avec un rendement de",
+                generates: "génère",
+                months: "mois",
+                investedCapital: "Capital Investi",
+                totalProjects: "Projets",
+                totalGainsLabel: "Gains Totaux",
+                avgReturn: "Rendement Moyen",
+                winner: "Gagnant",
+                monthsShort: "m",
+                pdfGenerated: "PDF généré avec succès !",
+                linkCopied: "Lien copié !",
+                maxProjects: "Maximum 5 projets atteints",
+                keepOneProject: "Conservez au moins un projet",
+                createTwoProjects: "Créez au moins 2 projets"
+            },
+            en: {
+                appName: "Invest'A Li BOT",
+                appSubtitle: "AI Simulator",
+                share: "Share",
+                heroBadge: "Powered by Artificial Intelligence",
+                heroTitle: "Optimize Your Investments",
+                heroSubtitle: "Simulate, compare and let our AI guide you to the best decisions",
+                opportunitiesTitle: "🎯 Investment Opportunities",
+                opportunitiesSubtitle: "Discover our AI-selected opportunities",
+                comparisonTitle: "📊 AI Comparative Analysis",
+                exportPDF: "Export PDF",
+                aiEmptyTitle: "Create projects for AI analysis",
+                aiEmptyText: "Add at least 2 projects to compare and get recommendations",
+                tableEmptyTitle: "No projects to compare",
+                tableEmptyText: "Create projects to see the comparison",
+                colProject: "Project",
+                colInitial: "Initial Capital",
+                colRate: "Rate",
+                colMonthly: "Monthly Contribution",
+                colDuration: "Duration",
+                colTotalInvested: "Total Invested",
+                colFinal: "Final Capital",
+                colGains: "Gains",
+                colReturn: "Return",
+                newProject: "New Project",
+                compareAI: "AI Comparison",
+                settings: "Settings",
+                project: "PROJECT",
+                projectName: "Project name",
+                startingCapital: "Starting capital",
+                rateType: "Rate type",
+                daily: "Daily",
+                monthly: "Monthly",
+                rate: "Rate",
+                monthlyContribution: "Monthly contribution",
+                duration: "Duration (months)",
+                compoundInterest: "Compound interest",
+                aiPowered: "AI",
+                exportProjectPDF: "Export to PDF",
+                finalCapital: "💎 Final Capital",
+                totalGains: "📈 Total Gains",
+                totalContributions: "💰 Total Contributions",
+                totalReturn: "🎯 Total Return",
+                aiAnalysis: "Intelligent Analysis",
+                aiRecommendation: "Personalized AI recommendation",
+                bestProject: "Best project",
+                withReturn: "with a return of",
+                generates: "generates",
+                months: "months",
+                investedCapital: "Invested Capital",
+                totalProjects: "Projects",
+                totalGainsLabel: "Total Gains",
+                avgReturn: "Average Return",
+                winner: "Winner",
+                monthsShort: "m",
+                pdfGenerated: "PDF generated successfully!",
+                linkCopied: "Link copied!",
+                maxProjects: "Maximum 5 projects reached",
+                keepOneProject: "Keep at least one project",
+                createTwoProjects: "Create at least 2 projects"
+            }
+        };
+
+        // Business Opportunities
+        const businessOpportunities = {
+            fr: [
+                {
+                    icon: '💎',
+                    title: 'Crypto Trading Pro',
+                    description: 'Formation complète sur le trading de cryptomonnaies avec stratégies éprouvées et accompagnement personnalisé.',
+                    badge: 'Populaire',
+                    url: 'https://example.com/crypto'
+                },
+                {
+                    icon: '📈',
+                    title: 'Trading Automatisé IA',
+                    description: 'Bot de trading intelligent qui analyse le marché 24/7 pour maximiser vos profits en automatique.',
+                    badge: 'IA Powered',
+                    url: 'https://example.com/bot'
+                },
+                {
+                    icon: '🏠',
+                    title: 'Immobilier Tokenisé',
+                    description: 'Investissez dans l\'immobilier premium avec des tickets d\'entrée réduits et des rendements attractifs.',
+                    badge: 'Nouveau',
+                    url: 'https://example.com/immo'
+                }
+            ],
+            en: [
+                {
+                    icon: '💎',
+                    title: 'Crypto Trading Pro',
+                    description: 'Complete cryptocurrency trading training with proven strategies and personalized support.',
+                    badge: 'Popular',
+                    url: 'https://example.com/crypto'
+                },
+                {
+                    icon: '📈',
+                    title: 'AI Automated Trading',
+                    description: 'Intelligent trading bot that analyzes the market 24/7 to maximize your profits automatically.',
+                    badge: 'AI Powered',
+                    url: 'https://example.com/bot'
+                },
+                {
+                    icon: '🏠',
+                    title: 'Tokenized Real Estate',
+                    description: 'Invest in premium real estate with reduced entry tickets and attractive returns.',
+                    badge: 'New',
+                    url: 'https://example.com/immo'
+                }
+            ]
+        };
+
+        // App State
+        let currentLang = 'fr';
+        let projects = [];
+        let nextProjectId = 0;
+        let activeProject = 0;
+        let charts = {};
+        let comparisonChart = null;
+        const MAX_PROJECTS = 5;
+
+        // Initialize
+        function initApp() {
+            loadBusinessOpportunities();
+            loadProjects();
+            renderNavTabs();
+            renderProjects();
+            if (projects.length > 0) {
+                switchToProject(projects[0].id);
+            }
+            updateComparison();
+        }
+
+        // Change Language
+        function changeLanguage(lang) {
+            currentLang = lang;
+            
+            // Update button states
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+            
+            // Update all i18n elements
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.dataset.i18n;
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+            
+            // Re-render dynamic content
+            loadBusinessOpportunities();
+            renderNavTabs();
+            renderProjects();
+            updateComparison();
+        }
+
+        // Get translation
+        function t(key) {
+            return translations[currentLang][key] || key;
+        }
+
+        // Load Opportunities
+        function loadBusinessOpportunities() {
+            const grid = document.getElementById('opportunitiesGrid');
+            const opps = businessOpportunities[currentLang];
+            grid.innerHTML = opps.map(opp => `
+                <div class="opportunity-card" onclick="window.open('${opp.url}', '_blank')">
+                    <div class="opportunity-icon">${opp.icon}</div>
+                    <h4>${opp.title}</h4>
+                    <p>${opp.description}</p>
+                    <div class="opportunity-footer">
+                        <span class="opportunity-badge">${opp.badge}</span>
+                        <span class="opportunity-link">${currentLang === 'fr' ? 'Découvrir →' : 'Discover →'}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Share
+        function sharePage() {
+            if (navigator.share) {
+                navigator.share({
+                    title: "Invest'A Li BOT",
+                    text: t('heroSubtitle'),
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                showNotification(t('linkCopied'));
+            }
+        }
+
+        // Notification
+        function showNotification(message) {
+            const notif = document.getElementById('notification');
+            notif.textContent = message;
+            notif.style.display = 'block';
+            setTimeout(() => notif.style.display = 'none', 3000);
+        }
+
+        // Load Projects
+        function loadProjects() {
+            const saved = localStorage.getItem('investALiBotProjects_v3');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    projects = data.projects || [];
+                    nextProjectId = data.nextProjectId || 0;
+                } catch (e) {
+                    createDefaultProject();
+                }
+            } else {
+                createDefaultProject();
+            }
+        }
+
+        // Create Default Project
+        function createDefaultProject() {
+            projects = [{
+                id: 0,
+                name: currentLang === 'fr' ? 'Projet 1' : 'Project 1',
+                capital: 10000,
+                rateType: 'daily',
+                rate: 1,
+                monthlyContribution: 500,
+                duration: 12,
+                compound: true
+            }];
+            nextProjectId = 1;
+            saveProjects();
+        }
+
+        // Save Projects
+        function saveProjects() {
+            localStorage.setItem('investALiBotProjects_v3', JSON.stringify({
+                projects: projects,
+                nextProjectId: nextProjectId
+            }));
+        }
+
+        // Add Project
+        function addProject() {
+            if (projects.length >= MAX_PROJECTS) {
+                showNotification(t('maxProjects'));
+                return;
+            }
+
+            const newProject = {
+                id: nextProjectId++,
+                name: `${currentLang === 'fr' ? 'Projet' : 'Project'} ${nextProjectId}`,
+                capital: 10000,
+                rateType: 'daily',
+                rate: 1,
+                monthlyContribution: 500,
+                duration: 12,
+                compound: true
+            };
+            projects.push(newProject);
+            saveProjects();
+            renderNavTabs();
+            renderProjects();
+            switchToProject(newProject.id);
+            updateComparison();
+        }
+
+        // Close Project
+        function closeProject(projectId, event) {
+            event.stopPropagation();
+            if (projects.length <= 1) {
+                showNotification(t('keepOneProject'));
+                return;
+            }
+            projects = projects.filter(p => p.id !== projectId);
+            if (activeProject === projectId) {
+                activeProject = projects[0].id;
+            }
+            saveProjects();
+            renderNavTabs();
+            renderProjects();
+            switchToProject(activeProject);
+            updateComparison();
+        }
+
+        // Render Navigation Tabs
+        function renderNavTabs() {
+            const container = document.getElementById('navTabs');
+            let html = projects.map(project => `
+                <div class="nav-tab ${activeProject === project.id ? 'active' : ''}" 
+                     data-project="${project.id}"
+                     onclick="switchToProject(${project.id})">
+                    <span class="tab-icon">📊</span>
+                    <span>${project.name}</span>
+                    <span class="close-btn" onclick="closeProject(${project.id}, event)">×</span>
+                </div>
+            `).join('');
+
+            if (projects.length < MAX_PROJECTS) {
+                html += `
+                    <button class="add-project-btn" onclick="addProject()">
+                        <span>+</span> ${t('newProject')}
+                    </button>
+                `;
+            }
+
+            html += `
+                <div class="nav-tab compare-tab" onclick="switchToComparison()">
+                    <span class="tab-icon">🤖</span>
+                    <span>${t('compareAI')}</span>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        // Switch to Project
+        function switchToProject(projectId) {
+            activeProject = projectId;
+            renderNavTabs();
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(`project-${projectId}`)?.classList.add('active');
+            document.getElementById('comparisonContent').classList.remove('active');
+        }
+
+        // Switch to Comparison
+        function switchToComparison() {
+            activeProject = null;
+            renderNavTabs();
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById('comparisonContent').classList.add('active');
+            document.querySelector('.compare-tab')?.classList.add('active');
+            updateComparison();
+        }
+
+        // Render Projects
+        function renderProjects() {
+            const container = document.getElementById('projectsContent');
+            container.innerHTML = projects.map(project => `
+                <div class="tab-content ${activeProject === project.id ? 'active' : ''}" id="project-${project.id}">
+                    <div class="project-view">
+                        <div class="inputs-panel">
+                            <div class="panel-header">
+                                <h4>⚙️ ${t('settings')}</h4>
+                                <span class="panel-badge">${t('project')} ${project.id + 1}</span>
+                            </div>
+                            
+                            <div class="input-group">
+                                <label>${t('projectName')}</label>
+                                <input type="text" value="${project.name}" 
+                                       onchange="updateProjectName(${project.id}, this.value)">
+                            </div>
+                            
+                            <div class="input-group">
+                                <label>${t('startingCapital')} (€)</label>
+                                <input type="number" value="${project.capital}" min="0" step="100"
+                                       onchange="updateProject(${project.id}, 'capital', parseFloat(this.value))">
+                            </div>
+                            
+                            <div class="input-group">
+                                <label>${t('rateType')}</label>
+                                <div class="rate-type-selector">
+                                    <button class="rate-type-btn ${project.rateType === 'daily' ? 'active' : ''}" 
+                                            onclick="setRateType(${project.id}, 'daily')">${t('daily')}</button>
+                                    <button class="rate-type-btn ${project.rateType === 'monthly' ? 'active' : ''}" 
+                                            onclick="setRateType(${project.id}, 'monthly')">${t('monthly')}</button>
+                                </div>
+                            </div>
+                            
+                            <div class="input-group">
+                                <label>
+                                    <span>${t('rate')} (${project.rateType === 'daily' ? '%' : '%/mois'})</span>
+                                    <span class="value-display" id="rate-display-${project.id}">${project.rate.toFixed(2)}%</span>
+                                </label>
+                                <div class="rate-input-wrapper">
+                                    <input type="number" value="${project.rate}" min="0.001" max="${project.rateType === 'daily' ? 5 : 100}" step="0.001"
+                                           onchange="updateRateInput(${project.id}, parseFloat(this.value))">
+                                    <input type="range" value="${project.rate}" min="0.001" max="${project.rateType === 'daily' ? 5 : 100}" step="0.001"
+                                           oninput="updateRateSlider(${project.id}, parseFloat(this.value))">
+                                </div>
+                            </div>
+                            
+                            <div class="input-group">
+                                <label>${t('monthlyContribution')} (€)</label>
+                                <input type="number" value="${project.monthlyContribution}" min="0" step="50"
+                                       onchange="updateProject(${project.id}, 'monthlyContribution', parseFloat(this.value))">
+                            </div>
+                            
+                            <div class="input-group">
+                                <label>${t('duration')}</label>
+                                <input type="number" value="${project.duration}" min="1" max="360" step="1"
+                                       onchange="updateProject(${project.id}, 'duration', parseInt(this.value))">
+                            </div>
+                            
+                            <div class="toggle-card">
+                                <span class="toggle-label">
+                                    <span>⚡</span>
+                                    ${t('compoundInterest')}
+                                    <span class="ai-chip">${t('aiPowered')}</span>
+                                </span>
+                                <label class="switch">
+                                    <input type="checkbox" ${project.compound ? 'checked' : ''}
+                                           onchange="updateProject(${project.id}, 'compound', this.checked)">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            
+                            <button class="btn-primary" onclick="exportProjectPDF(${project.id})">
+                                <span>📥</span> ${t('exportProjectPDF')}
+                            </button>
+                        </div>
+                        
+                        <div class="results-panel">
+                            <div class="results-grid">
+                                <div class="result-card highlight">
+                                    <h5>${t('finalCapital')}</h5>
+                                    <div class="value" id="final-${project.id}">€0</div>
+                                </div>
+                                <div class="result-card">
+                                    <h5>${t('totalGains')}</h5>
+                                    <div class="value" id="gains-${project.id}">€0</div>
+                                </div>
+                                <div class="result-card">
+                                    <h5>${t('totalContributions')}</h5>
+                                    <div class="value" id="contributions-${project.id}">€0</div>
+                                </div>
+                                <div class="result-card">
+                                    <h5>${t('totalReturn')}</h5>
+                                    <div class="value" id="return-${project.id}">0%</div>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="chart-${project.id}"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            projects.forEach(project => calculateProject(project.id));
+        }
+
+        // Update Project
+        function updateProjectName(projectId, name) {
+            const project = projects.find(p => p.id === projectId);
+            if (project) {
+                project.name = name;
+                saveProjects();
+                renderNavTabs();
+                updateComparison();
+            }
+        }
+
+        function updateProject(projectId, field, value) {
+            const project = projects.find(p => p.id === projectId);
+            if (project) {
+                project[field] = value;
+                saveProjects();
+                calculateProject(projectId);
+                updateComparison();
+            }
+        }
+
+        // Set Rate Type
+        function setRateType(projectId, type) {
+            const project = projects.find(p => p.id === projectId);
+            if (project) {
+                project.rateType = type;
+                // Convert rate when switching
+                if (type === 'monthly' && project.rate <= 5) {
+                    project.rate = project.rate * 30;
+                } else if (type === 'daily' && project.rate > 5) {
+                    project.rate = project.rate / 30;
+                }
+                saveProjects();
+                renderProjects();
+                updateComparison();
+            }
+        }
+
+        // Update Rate from Input
+        function updateRateInput(projectId, value) {
+            const project = projects.find(p => p.id === projectId);
+            if (project) {
+                project.rate = value;
+                document.getElementById(`rate-display-${projectId}`).textContent = value.toFixed(3) + '%';
+                saveProjects();
+                calculateProject(projectId);
+                updateComparison();
+            }
+        }
+
+        // Update Rate from Slider
+        function updateRateSlider(projectId, value) {
+            const project = projects.find(p => p.id === projectId);
+            if (project) {
+                project.rate = value;
+                document.getElementById(`rate-display-${projectId}`).textContent = value.toFixed(3) + '%';
+                // Update the number input
+                const numberInput = document.querySelector(`#project-${projectId} .rate-input-wrapper input[type="number"]`);
+                if (numberInput) numberInput.value = value;
+                saveProjects();
+                calculateProject(projectId);
+                updateComparison();
+            }
+        }
+
+        // Calculate Project
+        function calculateProject(projectId) {
+            const project = projects.find(p => p.id === projectId);
+            if (!project) return;
+
+            // Convert rate to daily
+            const dailyRate = project.rateType === 'daily' ? project.rate / 100 : project.rate / 100 / 30;
+            
+            let capital = project.capital;
+            let totalContributions = 0;
+            const dataPoints = [];
+            const labels = [];
+
+            for (let month = 0; month <= project.duration; month++) {
+                dataPoints.push(capital);
+                labels.push(`M${month}`);
+
+                if (month > 0 && month < project.duration) {
+                    capital += project.monthlyContribution;
+                    totalContributions += project.monthlyContribution;
+                }
+
+                if (month < project.duration) {
+                    for (let day = 0; day < 30; day++) {
+                        if (project.compound) {
+                            capital *= (1 + dailyRate);
+                        } else {
+                            capital += project.capital * dailyRate;
+                        }
+                    }
+                }
+            }
+
+            const finalCapital = capital;
+            const totalGains = finalCapital - project.capital - totalContributions;
+            const totalReturn = ((finalCapital - project.capital) / project.capital) * 100;
+
+            document.getElementById(`final-${projectId}`).textContent = formatCurrency(finalCapital);
+            document.getElementById(`gains-${projectId}`).textContent = formatCurrency(totalGains);
+            document.getElementById(`contributions-${projectId}`).textContent = formatCurrency(totalContributions);
+            document.getElementById(`return-${projectId}`).textContent = totalReturn.toFixed(2) + '%';
+
+            updateChart(projectId, labels, dataPoints);
+        }
+
+        // Format Currency
+        function formatCurrency(value) {
+            return new Intl.NumberFormat(currentLang === 'fr' ? 'fr-FR' : 'en-US', {
+                style: 'currency',
+                currency: 'EUR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(value);
+        }
+
+        // Update Chart
+        function updateChart(projectId, labels, data) {
+            const chartId = `chart-${projectId}`;
+            if (charts[chartId]) charts[chartId].destroy();
+
+            const ctx = document.getElementById(chartId).getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, 'rgba(14, 165, 233, 0.25)');
+            gradient.addColorStop(1, 'rgba(14, 165, 233, 0.02)');
+
+            charts[chartId] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Capital',
+                        data: data,
+                        borderColor: '#0ea5e9',
+                        backgroundColor: gradient,
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'white',
+                            borderColor: '#e2e8f0',
+                            borderWidth: 1,
+                            padding: 12,
+                            titleFont: { size: 12, weight: '600' },
+                            bodyFont: { size: 13 },
+                            titleColor: '#0ea5e9',
+                            bodyColor: '#0f172a',
+                            callbacks: {
+                                label: (ctx) => 'Capital: ' + formatCurrency(ctx.parsed.y)
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                color: '#94a3b8',
+                                callback: (v) => formatCurrency(v),
+                                font: { size: 11 }
+                            },
+                            grid: { color: '#f1f5f9' }
+                        },
+                        x: {
+                            ticks: { color: '#94a3b8', font: { size: 11 } },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Calculate Project Data
+        function calculateProjectData(project) {
+            const dailyRate = project.rateType === 'daily' ? project.rate / 100 : project.rate / 100 / 30;
+            let capital = project.capital;
+            let totalContributions = 0;
+            const dataPoints = [];
+
+            for (let month = 0; month <= project.duration; month++) {
+                dataPoints.push(capital);
+
+                if (month > 0 && month < project.duration) {
+                    capital += project.monthlyContribution;
+                    totalContributions += project.monthlyContribution;
+                }
+
+                if (month < project.duration) {
+                    for (let day = 0; day < 30; day++) {
+                        if (project.compound) {
+                            capital *= (1 + dailyRate);
+                        } else {
+                            capital += project.capital * dailyRate;
+                        }
+                    }
+                }
+            }
+
+            return {
+                dataPoints,
+                finalCapital: capital,
+                totalGains: capital - project.capital - totalContributions,
+                totalContributions,
+                totalInvested: project.capital + totalContributions,
+                totalReturn: ((capital - project.capital) / project.capital) * 100
+            };
+        }
+
+        // Update Comparison
+        function updateComparison() {
+            const section = document.getElementById('aiAnalysisSection');
+            
+            if (projects.length < 2) {
+                section.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🤖</div>
+                        <h5>${t('aiEmptyTitle')}</h5>
+                        <p>${t('aiEmptyText')}</p>
+                    </div>
+                `;
+                updateComparisonChart([]);
+                updateComparisonTable([]);
+                return;
+            }
+
+            const analyses = projects.map(p => ({
+                project: p,
+                data: calculateProjectData(p)
+            }));
+
+            // Find best project
+            const best = analyses.reduce((best, curr) => 
+                curr.data.finalCapital > best.data.finalCapital ? curr : best
+            );
+
+            // Calculate stats
+            const totalInvested = projects.reduce((sum, p) => sum + p.capital, 0);
+            const totalFinal = analyses.reduce((sum, a) => sum + a.data.finalCapital, 0);
+            const avgReturn = analyses.reduce((sum, a) => sum + a.data.totalReturn, 0) / analyses.length;
+            const totalGains = analyses.reduce((sum, a) => sum + a.data.totalGains, 0);
+
+            // AI Recommendation
+            let recommendation = '';
+            if (best.data.totalReturn > 300) {
+                recommendation = currentLang === 'fr' 
+                    ? 'Stratégie très agressive avec rendement exceptionnel. Attention aux risques associés à des taux aussi élevés.'
+                    : 'Very aggressive strategy with exceptional returns. Be aware of risks associated with such high rates.';
+            } else if (best.data.totalReturn > 150) {
+                recommendation = currentLang === 'fr'
+                    ? 'Excellente stratégie avec un bon équilibre risque/rendement. Idéal pour les investisseurs ambitieux.'
+                    : 'Excellent strategy with a good risk/return balance. Ideal for ambitious investors.';
+            } else if (best.data.totalReturn > 50) {
+                recommendation = currentLang === 'fr'
+                    ? 'Stratégie équilibrée avec un potentiel de croissance solide sur le long terme.'
+                    : 'Balanced strategy with solid growth potential in the long term.';
+            } else {
+                recommendation = currentLang === 'fr'
+                    ? 'Stratégie conservatrice. Considérez d\'augmenter légèrement le taux pour de meilleurs résultats.'
+                    : 'Conservative strategy. Consider slightly increasing the rate for better results.';
+            }
+
+            section.innerHTML = `
+                <div class="ai-header">
+                    <div class="ai-icon">🤖</div>
+                    <div>
+                        <h5>${t('aiAnalysis')}</h5>
+                        <span>${t('aiRecommendation')}</span>
+                    </div>
+                </div>
+                
+                <div class="ai-recommendation">
+                    <h6><span>🏆</span> ${t('bestProject')}: ${best.project.name}</h6>
+                    <p>${t('withReturn')} <strong>${best.data.totalReturn.toFixed(2)}%</strong>, ${t('generates')} 
+                    <strong>${formatCurrency(best.data.finalCapital)}</strong> ${t('in')} ${best.project.duration} ${t('months')}. 
+                    ${recommendation}</p>
+                </div>
+                
+                <div class="ai-stats">
+                    <div class="ai-stat">
+                        <h6>${t('investedCapital')}</h6>
+                        <div class="stat-value">${formatCurrency(totalInvested)}</div>
+                    </div>
+                    <div class="ai-stat">
+                        <h6>${t('colFinal')}</h6>
+                        <div class="stat-value">${formatCurrency(totalFinal)}</div>
+                    </div>
+                    <div class="ai-stat">
+                        <h6>${t('totalGainsLabel')}</h6>
+                        <div class="stat-value">${formatCurrency(totalGains)}</div>
+                    </div>
+                    <div class="ai-stat">
+                        <h6>${t('avgReturn')}</h6>
+                        <div class="stat-value">${avgReturn.toFixed(2)}%</div>
+                    </div>
+                    <div class="ai-stat">
+                        <h6>${t('totalProjects')}</h6>
+                        <div class="stat-value">${projects.length}</div>
+                    </div>
+                </div>
+            `;
+
+            updateComparisonChart(analyses);
+            updateComparisonTable(analyses);
+        }
+
+        // Update Comparison Chart
+        function updateComparisonChart(analyses) {
+            if (comparisonChart) comparisonChart.destroy();
+
+            const ctx = document.getElementById('comparisonChart').getContext('2d');
+            const colors = ['#0ea5e9', '#6366f1', '#f59e0b', '#22c55e', '#ec4899'];
+
+            const maxDuration = Math.max(...analyses.map(a => a.project.duration), 12);
+            const labels = Array.from({ length: maxDuration + 1 }, (_, i) => `M${i}`);
+
+            const datasets = analyses.map((a, i) => {
+                const data = a.data.dataPoints;
+                const extendedData = Array(maxDuration + 1).fill(null);
+                data.forEach((val, idx) => extendedData[idx] = val);
+                
+                return {
+                    label: a.project.name,
+                    data: extendedData,
+                    borderColor: colors[i % colors.length],
+                    backgroundColor: colors[i % colors.length] + '20',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 5
+                };
+            });
+
+            comparisonChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels, datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                color: '#475569',
+                                padding: 16,
+                                font: { size: 12, weight: '500' },
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'white',
+                            borderColor: '#e2e8f0',
+                            borderWidth: 1,
+                            padding: 12,
+                            titleFont: { size: 12, weight: '600' },
+                            bodyFont: { size: 13 },
+                            titleColor: '#0ea5e9',
+                            bodyColor: '#0f172a',
+                            callbacks: {
+                                label: (ctx) => `${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)}`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                color: '#94a3b8',
+                                callback: (v) => formatCurrency(v),
+                                font: { size: 11 }
+                            },
+                            grid: { color: '#f1f5f9' }
+                        },
+                        x: {
+                            ticks: { color: '#94a3b8', font: { size: 11 } },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update Comparison Table
+        function updateComparisonTable(analyses) {
+            const tbody = document.getElementById('comparisonTableBody');
+            
+            if (analyses.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="empty-state">
+                            <div class="empty-state-icon">📊</div>
+                            <h5>${t('tableEmptyTitle')}</h5>
+                            <p>${t('tableEmptyText')}</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // Find winner
+            const winner = analyses.reduce((best, curr) => 
+                curr.data.finalCapital > best.data.finalCapital ? curr : best
+            );
+
+            let html = analyses.map(a => `
+                <tr>
+                    <td>
+                        <strong>${a.project.name}</strong>
+                        ${a === winner ? `<span class="winner-badge">🏆 ${t('winner')}</span>` : ''}
+                    </td>
+                    <td>${formatCurrency(a.project.capital)}</td>
+                    <td>${a.project.rate.toFixed(2)}% ${a.project.rateType === 'daily' ? '/j' : '/m'}</td>
+                    <td>${formatCurrency(a.project.monthlyContribution)}</td>
+                    <td>${a.project.duration} ${t('monthsShort')}</td>
+                    <td><strong>${formatCurrency(a.data.totalInvested)}</strong></td>
+                    <td><strong>${formatCurrency(a.data.finalCapital)}</strong></td>
+                    <td>${formatCurrency(a.data.totalGains)}</td>
+                    <td><strong>${a.data.totalReturn.toFixed(2)}%</strong></td>
+                </tr>
+            `).join('');
+
+            // Add totals row
+            const totalInitial = analyses.reduce((sum, a) => sum + a.project.capital, 0);
+            const totalInvested = analyses.reduce((sum, a) => sum + a.data.totalInvested, 0);
+            const totalFinal = analyses.reduce((sum, a) => sum + a.data.finalCapital, 0);
+            const totalGains = analyses.reduce((sum, a) => sum + a.data.totalGains, 0);
+            const avgReturn = analyses.reduce((sum, a) => sum + a.data.totalReturn, 0) / analyses.length;
+
+            html += `
+                <tr class="total-row">
+                    <td><strong>${currentLang === 'fr' ? 'TOTAL' : 'TOTAL'}</strong></td>
+                    <td><strong>${formatCurrency(totalInitial)}</strong></td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td><strong>${formatCurrency(totalInvested)}</strong></td>
+                    <td><strong>${formatCurrency(totalFinal)}</strong></td>
+                    <td><strong>${formatCurrency(totalGains)}</strong></td>
+                    <td><strong>${avgReturn.toFixed(2)}%</strong></td>
+                </tr>
+            `;
+
+            tbody.innerHTML = html;
+        }
+
+        // Export Project PDF (Complete with chart, table, AI analysis)
+        function exportProjectPDF(projectId) {
+            const project = projects.find(p => p.id === projectId);
+            if (!project) return;
+
+            showNotification(t('pdfGenerated'));
+            
+            const data = calculateProjectData(project);
+            const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+            
+            // Header
+            pdf.setFillColor(14, 165, 233);
+            pdf.rect(0, 0, 210, 28, 'F');
+            
+            pdf.setFontSize(18);
+            pdf.setTextColor(255, 255, 255);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text("Invest'A Li BOT", 105, 12, { align: 'center' });
+            pdf.setFontSize(11);
+            pdf.text(project.name, 105, 22, { align: 'center' });
+            
+            let y = 36;
+            
+            // Parameters Section
+            pdf.setFontSize(10);
+            pdf.setTextColor(14, 165, 233);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text(currentLang === 'fr' ? 'PARAMETRES' : 'PARAMETERS', 15, y);
+            y += 6;
+            
+            pdf.setDrawColor(14, 165, 233);
+            pdf.setLineWidth(0.3);
+            pdf.line(15, y, 195, y);
+            y += 5;
+            
+            pdf.setFontSize(9);
+            pdf.setTextColor(80, 80, 80);
+            pdf.setFont('helvetica', 'normal');
+            
+            const params = [
+                [currentLang === 'fr' ? 'Capital de depart' : 'Starting capital', formatCurrency(project.capital)],
+                [currentLang === 'fr' ? 'Type de taux' : 'Rate type', project.rateType === 'daily' ? (currentLang === 'fr' ? 'Journalier' : 'Daily') : (currentLang === 'fr' ? 'Mensuel' : 'Monthly')],
+                [currentLang === 'fr' ? 'Taux' : 'Rate', project.rate.toFixed(3) + '%'],
+                [currentLang === 'fr' ? 'Apport mensuel' : 'Monthly contribution', formatCurrency(project.monthlyContribution)],
+                [currentLang === 'fr' ? 'Duree' : 'Duration', project.duration + (currentLang === 'fr' ? ' mois' : ' months')],
+                [currentLang === 'fr' ? 'Interets composes' : 'Compound interest', project.compound ? (currentLang === 'fr' ? 'Oui' : 'Yes') : (currentLang === 'fr' ? 'Non' : 'No')]
+            ];
+            
+            params.forEach(([label, value]) => {
+                pdf.setFont('helvetica', 'bold');
+                pdf.text(label + ':', 15, y);
+                pdf.setFont('helvetica', 'normal');
+                pdf.text(value, 70, y);
+                y += 5;
+            });
+            
+            y += 3;
+            
+            // Results Section
+            pdf.setFontSize(10);
+            pdf.setTextColor(14, 165, 233);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text(currentLang === 'fr' ? 'RESULTATS' : 'RESULTS', 15, y);
+            y += 6;
+            pdf.line(15, y, 195, y);
+            y += 5;
+            
+            // Results boxes
+            const boxWidth = 42;
+            const boxHeight = 22;
+            const startX = 15;
+            
+            const results = [
+                { label: currentLang === 'fr' ? 'Capital Final' : 'Final Capital', value: formatCurrency(data.finalCapital), color: [14, 165, 233] },
+                { label: currentLang === 'fr' ? 'Total Investi' : 'Total Invested', value: formatCurrency(data.totalInvested), color: [99, 102, 241] },
+                { label: currentLang === 'fr' ? 'Gains' : 'Gains', value: formatCurrency(data.totalGains), color: [34, 197, 94] },
+                { label: currentLang === 'fr' ? 'Rendement' : 'Return', value: data.totalReturn.toFixed(2) + '%', color: [245, 158, 11] }
+            ];
+            
+            results.forEach((res, i) => {
+                const x = startX + (i * (boxWidth + 4));
+                pdf.setFillColor(res.color[0], res.color[1], res.color[2]);
+                pdf.setDrawColor(res.color[0], res.color[1], res.color[2]);
+                pdf.roundedRect(x, y, boxWidth, boxHeight, 2, 2, 'FD');
+                
+                pdf.setFontSize(7);
+                pdf.setTextColor(255, 255, 255);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text(res.label, x + 2, y + 6);
+                
+                pdf.setFontSize(9);
+                pdf.text(res.value, x + 2, y + 16);
+            });
+            
+            y += boxHeight + 8;
+            
+            // Mini Chart
+            pdf.setFontSize(10);
+            pdf.setTextColor(14, 165, 233);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text(currentLang === 'fr' ? 'EVOLUTION DU CAPITAL' : 'CAPITAL EVOLUTION', 15, y);
+            y += 5;
+            
+            const chartWidth = 180;
+            const chartHeight = 35;
+            const chartX = 15;
+            const chartY = y;
+            
+            // Chart background
+            pdf.setFillColor(248, 250, 252);
+            pdf.rect(chartX, chartY, chartWidth, chartHeight, 'F');
+            
+            // Draw chart line
+            const maxVal = Math.max(...data.dataPoints);
+            const minVal = Math.min(...data.dataPoints);
+            const range = maxVal - minVal || 1;
+            
+            pdf.setDrawColor(14, 165, 233);
+            pdf.setLineWidth(1);
+            
+            for (let i = 0; i < data.dataPoints.length - 1; i++) {
+                const x1 = chartX + (i / (data.dataPoints.length - 1)) * chartWidth;
+                const y1 = chartY + chartHeight - ((data.dataPoints[i] - minVal) / range * (chartHeight - 8)) - 4;
+                const x2 = chartX + ((i + 1) / (data.dataPoints.length - 1)) * chartWidth;
+                const y2 = chartY + chartHeight - ((data.dataPoints[i + 1] - minVal) / range * (chartHeight - 8)) - 4;
+                pdf.line(x1, y1, x2, y2);
+            }
+            
+            // Chart labels
+            pdf.setFontSize(7);
+            pdf.setTextColor(150, 150, 150);
+            pdf.text('M0', chartX, chartY + chartHeight + 4);
+            pdf.text('M' + project.duration, chartX + chartWidth - 10, chartY + chartHeight + 4);
+            
+            y += chartHeight + 12;
+            
+            // Monthly Evolution Table
+            pdf.setFontSize(10);
+            pdf.setTextColor(14, 165, 233);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text(currentLang === 'fr' ? 'EVOLUTION MENSUELLE' : 'MONTHLY EVOLUTION', 15, y);
+            y += 6;
+            pdf.line(15, y, 195, y);
+            y += 4;
+            
+            // Table header
+            pdf.setFillColor(14, 165, 233);
+            pdf.rect(15, y, 180, 6, 'F');
+            pdf.setFontSize(7);
+            pdf.setTextColor(255, 255, 255);
+            pdf.text(currentLang === 'fr' ? 'Mois' : 'Month', 17, y + 4);
+            pdf.text(currentLang === 'fr' ? 'Capital' : 'Capital', 45, y + 4);
+            pdf.text(currentLang === 'fr' ? 'Apport' : 'Contribution', 85, y + 4);
+            pdf.text(currentLang === 'fr' ? 'Gains' : 'Gains', 120, y + 4);
+            pdf.text(currentLang === 'fr' ? 'Cumul Gains' : 'Cumul Gains', 155, y + 4);
+            
+            y += 6;
+            
+            // Table rows (show every 3rd month to fit)
+            pdf.setFontSize(7);
+            pdf.setTextColor(80, 80, 80);
+            
+            const step = Math.ceil(data.dataPoints.length / 12);
+            for (let i = 0; i < data.dataPoints.length; i += step) {
+                if (y > 270) break;
+                
+                if (i % (step * 2) === 0) {
+                    pdf.setFillColor(248, 250, 252);
+                    pdf.rect(15, y, 180, 5, 'F');
+                }
+                
+                const monthCapital = data.dataPoints[i];
+                const contribution = i === 0 ? 0 : (i < project.duration ? project.monthlyContribution : 0);
+                const gains = monthCapital - project.capital - (i * project.monthlyContribution);
+                
+                pdf.text('M' + i, 17, y + 3.5);
+                pdf.text(formatCurrency(monthCapital).replace(/\s/g, ''), 45, y + 3.5);
+                pdf.text(i === 0 ? '-' : formatCurrency(contribution).replace(/\s/g, ''), 85, y + 3.5);
+                pdf.text(gains > 0 ? formatCurrency(gains).replace(/\s/g, '') : '-', 120, y + 3.5);
+                pdf.text(gains > 0 ? formatCurrency(gains).replace(/\s/g, '') : '-', 155, y + 3.5);
+                
+                y += 5;
+            }
+            
+            // Footer
+            pdf.setFontSize(7);
+            pdf.setTextColor(150, 150, 150);
+            pdf.text("Invest'A Li BOT - " + new Date().toLocaleDateString(currentLang === 'fr' ? 'fr-FR' : 'en-US'), 
+                    105, 290, { align: 'center' });
+            
+            pdf.save(`${project.name}.pdf`);
+        }
+
+        // Export Comparison PDF (Complete)
+        function exportComparisonPDF() {
+            if (projects.length < 2) {
+                showNotification(t('createTwoProjects'));
+                return;
+            }
+
+            showNotification(t('pdfGenerated'));
+            
+            const analyses = projects.map(p => ({
+                project: p,
+                data: calculateProjectData(p)
+            }));
+            
+            const pdf = new jspdf.jsPDF('l', 'mm', 'a4');
+            
+            // Header
+            pdf.setFillColor(99, 102, 241);
+            pdf.rect(0, 0, 297, 25, 'F');
+            
+            pdf.setFontSize(16);
+            pdf.setTextColor(255, 255, 255);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text(currentLang === 'fr' ? "Invest'A Li BOT - Comparaison IA" : "Invest'A Li BOT - AI Comparison", 148.5, 10, { align: 'center' });
+            pdf.setFontSize(9);
+            pdf.text(`${projects.length} ${currentLang === 'fr' ? 'projets analyses' : 'projects analyzed'}`, 148.5, 18, { align: 'center' });
+            
+            let y = 32;
+            
+            // AI Analysis Section
+            const best = analyses.reduce((best, curr) => 
+                curr.data.finalCapital > best.data.finalCapital ? curr : best
+            );
+            
+            pdf.setFillColor(237, 233, 254);
+            pdf.rect(15, y, 267, 22, 'F');
+            pdf.setDrawColor(196, 181, 253);
+            pdf.rect(15, y, 267, 22, 'D');
+            
+            pdf.setFontSize(9);
+            pdf.setTextColor(99, 102, 241);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('🤖 ' + (currentLang === 'fr' ? 'ANALYSE IA' : 'AI ANALYSIS'), 18, y + 6);
+            
+            pdf.setFontSize(8);
+            pdf.setTextColor(80, 80, 80);
+            pdf.setFont('helvetica', 'normal');
+            const recText = currentLang === 'fr' 
+                ? `Meilleur projet: ${best.project.name} avec ${formatCurrency(best.data.finalCapital)} (${best.data.totalReturn.toFixed(2)}% de rendement)`
+                : `Best project: ${best.project.name} with ${formatCurrency(best.data.finalCapital)} (${best.data.totalReturn.toFixed(2)}% return)`;
+            pdf.text(recText, 18, y + 14);
+            
+            y += 26;
+            
+            // Stats boxes
+            const totalInvested = projects.reduce((sum, p) => sum + p.capital, 0);
+            const totalFinal = analyses.reduce((sum, a) => sum + a.data.finalCapital, 0);
+            const totalGainsAll = analyses.reduce((sum, a) => sum + a.data.totalGains, 0);
+            const avgReturn = analyses.reduce((sum, a) => sum + a.data.totalReturn, 0) / analyses.length;
+            
+            const stats = [
+                { label: t('investedCapital'), value: formatCurrency(totalInvested), color: [14, 165, 233] },
+                { label: t('colFinal'), value: formatCurrency(totalFinal), color: [99, 102, 241] },
+                { label: t('totalGainsLabel'), value: formatCurrency(totalGainsAll), color: [34, 197, 94] },
+                { label: t('avgReturn'), value: avgReturn.toFixed(2) + '%', color: [245, 158, 11] },
+                { label: t('totalProjects'), value: projects.length.toString(), color: [236, 72, 153] }
+            ];
+            
+            const statBoxWidth = 49;
+            stats.forEach((stat, i) => {
+                const x = 15 + (i * (statBoxWidth + 4));
+                pdf.setFillColor(stat.color[0], stat.color[1], stat.color[2]);
+                pdf.roundedRect(x, y, statBoxWidth, 16, 2, 2, 'F');
+                
+                pdf.setFontSize(6);
+                pdf.setTextColor(255, 255, 255);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text(stat.label.toUpperCase(), x + 3, y + 5);
+                
+                pdf.setFontSize(9);
+                pdf.text(stat.value, x + 3, y + 12);
+            });
+            
+            y += 22;
+            
+            // Comparison Chart
+            pdf.setFontSize(9);
+            pdf.setTextColor(99, 102, 241);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text(currentLang === 'fr' ? 'GRAPHIQUE COMPARATIF' : 'COMPARISON CHART', 15, y);
+            y += 4;
+            
+            const compChartWidth = 130;
+            const compChartHeight = 45;
+            const compChartX = 15;
+            const compChartY = y;
+            
+            pdf.setFillColor(248, 250, 252);
+            pdf.rect(compChartX, compChartY, compChartWidth, compChartHeight, 'F');
+            
+            const colors = [[14, 165, 233], [99, 102, 241], [245, 158, 11], [34, 197, 94], [236, 72, 153]];
+            const maxVal = Math.max(...analyses.map(a => Math.max(...a.data.dataPoints)));
+            const minVal = Math.min(...analyses.map(a => Math.min(...a.data.dataPoints)));
+            const range = maxVal - minVal || 1;
+            
+            analyses.forEach((a, pi) => {
+                pdf.setDrawColor(colors[pi % colors.length][0], colors[pi % colors.length][1], colors[pi % colors.length][2]);
+                pdf.setLineWidth(0.8);
+                
+                for (let i = 0; i < a.data.dataPoints.length - 1; i++) {
+                    const x1 = compChartX + (i / (a.data.dataPoints.length - 1)) * compChartWidth;
+                    const y1 = compChartY + compChartHeight - ((a.data.dataPoints[i] - minVal) / range * (compChartHeight - 8)) - 4;
+                    const x2 = compChartX + ((i + 1) / (a.data.dataPoints.length - 1)) * compChartWidth;
+                    const y2 = compChartY + compChartHeight - ((a.data.dataPoints[i + 1] - minVal) / range * (compChartHeight - 8)) - 4;
+                    pdf.line(x1, y1, x2, y2);
+                }
+            });
+            
+            // Legend
+            let legendY = compChartY + 5;
+            analyses.forEach((a, i) => {
+                pdf.setFillColor(colors[i % colors.length][0], colors[i % colors.length][1], colors[i % colors.length][2]);
+                pdf.rect(compChartX + compChartWidth + 5, legendY + (i * 6), 8, 3, 'F');
+                pdf.setFontSize(7);
+                pdf.setTextColor(80, 80, 80);
+                pdf.text(a.project.name.substring(0, 20), compChartX + compChartWidth + 16, legendY + 2 + (i * 6));
+            });
+            
+            // Comparison Table
+            const tableX = 160;
+            const tableY = y;
+            const colW = 24;
+            
+            pdf.setFontSize(8);
+            pdf.setTextColor(99, 102, 241);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text(currentLang === 'fr' ? 'TABLEAU COMPARATIF' : 'COMPARISON TABLE', tableX, tableY - 1);
+            
+            // Table header
+            pdf.setFillColor(99, 102, 241);
+            pdf.rect(tableX, tableY, 122, 5, 'F');
+            pdf.setFontSize(6);
+            pdf.setTextColor(255, 255, 255);
+            
+            const headers = [t('colProject'), t('colInitial'), t('colRate'), t('colTotalInvested'), t('colFinal'), t('colReturn')];
+            headers.forEach((h, i) => {
+                pdf.text(h, tableX + 2 + (i * colW), tableY + 3.5);
+            });
+            
+            // Table rows
+            let rowY = tableY + 5;
+            analyses.forEach((a, i) => {
+                if (i % 2 === 0) {
+                    pdf.setFillColor(248, 250, 252);
+                    pdf.rect(tableX, rowY, 122, 5, 'F');
+                }
+                
+                pdf.setFontSize(6);
+                pdf.setTextColor(80, 80, 80);
+                pdf.text(a.project.name.substring(0, 10), tableX + 2, rowY + 3.5);
+                pdf.text(formatCurrency(a.project.capital).replace(/\s/g, ''), tableX + 2 + colW, rowY + 3.5);
+                pdf.text(a.project.rate.toFixed(1) + '%', tableX + 2 + (colW * 2), rowY + 3.5);
+                pdf.text(formatCurrency(a.data.totalInvested).replace(/\s/g, ''), tableX + 2 + (colW * 3), rowY + 3.5);
+                pdf.text(formatCurrency(a.data.finalCapital).replace(/\s/g, ''), tableX + 2 + (colW * 4), rowY + 3.5);
+                pdf.text(a.data.totalReturn.toFixed(1) + '%', tableX + 2 + (colW * 5), rowY + 3.5);
+                
+                rowY += 5;
+            });
+            
+            // Total row
+            pdf.setFillColor(224, 242, 254);
+            pdf.rect(tableX, rowY, 122, 5, 'F');
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('TOTAL', tableX + 2, rowY + 3.5);
+            pdf.text(formatCurrency(totalInvested).replace(/\s/g, ''), tableX + 2 + (colW * 3), rowY + 3.5);
+            pdf.text(formatCurrency(totalFinal).replace(/\s/g, ''), tableX + 2 + (colW * 4), rowY + 3.5);
+            pdf.text(avgReturn.toFixed(1) + '%', tableX + 2 + (colW * 5), rowY + 3.5);
+            
+            y = Math.max(compChartY + compChartHeight, rowY + 10) + 5;
+            
+            // Detailed monthly table for best project
+            if (y < 160) {
+                pdf.setFontSize(9);
+                pdf.setTextColor(14, 165, 233);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text((currentLang === 'fr' ? 'DETAILS MEILLEUR PROJET: ' : 'BEST PROJECT DETAILS: ') + best.project.name, 15, y);
+                y += 5;
+                
+                // Mini table
+                pdf.setFillColor(14, 165, 233);
+                pdf.rect(15, y, 130, 5, 'F');
+                pdf.setFontSize(6);
+                pdf.setTextColor(255, 255, 255);
+                pdf.text(currentLang === 'fr' ? 'Mois' : 'Month', 17, y + 3.5);
+                pdf.text(currentLang === 'fr' ? 'Capital' : 'Capital', 45, y + 3.5);
+                pdf.text(currentLang === 'fr' ? 'Gains' : 'Gains', 85, y + 3.5);
+                pdf.text(currentLang === 'fr' ? 'Rendement' : 'Return', 115, y + 3.5);
+                
+                y += 5;
+                
+                const step = Math.ceil(best.data.dataPoints.length / 8);
+                for (let i = 0; i < best.data.dataPoints.length && y < 190; i += step) {
+                    if (i % (step * 2) === 0) {
+                        pdf.setFillColor(248, 250, 252);
+                        pdf.rect(15, y, 130, 5, 'F');
+                    }
+                    
+                    const gains = best.data.dataPoints[i] - best.project.capital - (i * best.project.monthlyContribution);
+                    const ret = ((best.data.dataPoints[i] - best.project.capital) / best.project.capital) * 100;
+                    
+                    pdf.setFontSize(6);
+                    pdf.setTextColor(80, 80, 80);
+                    pdf.text('M' + i, 17, y + 3.5);
+                    pdf.text(formatCurrency(best.data.dataPoints[i]).replace(/\s/g, ''), 45, y + 3.5);
+                    pdf.text(gains > 0 ? formatCurrency(gains).replace(/\s/g, '') : '-', 85, y + 3.5);
+                    pdf.text(ret.toFixed(1) + '%', 115, y + 3.5);
+                    
+                    y += 5;
+                }
+            }
+            
+            // Footer
+            pdf.setFontSize(7);
+            pdf.setTextColor(150, 150, 150);
+            pdf.text("Invest'A Li BOT - " + new Date().toLocaleDateString(currentLang === 'fr' ? 'fr-FR' : 'en-US'), 
+                    148.5, 200, { align: 'center' });
+            
+            pdf.save(`Comparaison_IA_${new Date().toISOString().split('T')[0]}.pdf`);
+        }
+
+        // Initialize
+        initApp();
+    </script>
+</body>
+</html>
